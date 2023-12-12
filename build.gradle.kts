@@ -39,7 +39,16 @@ dependencies {
 	//testImplementation("org.springframework.security:spring-security-test")
 }
 
-tasks.jacocoTestReport { reports { xml.required.set(true) } }
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
+	reports {
+		xml.required = true
+	}
+}
+
+tasks.test {
+	finalizedBy(tasks.jacocoTestReport)
+}
 
 tasks.withType<Test> {
 	useJUnitPlatform()
