@@ -22,6 +22,8 @@ RUN ./gradlew --no-daemon clean
 
 RUN ./gradlew --no-daemon installDist
 
+ENV JAVA_OPTS "-Xmx512M -Xms512M"
+
 CMD ./build/install/app/bin/app
 
 EXPOSE 8080
