@@ -16,6 +16,10 @@ java {
 	sourceCompatibility = JavaVersion.VERSION_20
 }
 
+application {
+	mainClass.set("hexlet.code.app.AppApplication")
+}
+
 configurations {
 	compileOnly {
 		extendsFrom(configurations.annotationProcessor.get())
