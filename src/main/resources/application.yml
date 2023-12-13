@@ -1,7 +1,17 @@
 spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
   output:
     ansi:
       enabled: always
+  profiles:
+    default: dev
+
+base-url: /api
 
 server:
   port: 8090
+
