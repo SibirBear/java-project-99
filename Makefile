@@ -17,6 +17,6 @@ report:
 	./gradlew jacocoTestReport
 
 check-updates:
-	./gradlew dependencyUpdates
+	./gradlew dependencyUpdates -Drevision=release
 
 .PHONY: build
