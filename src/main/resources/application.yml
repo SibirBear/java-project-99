@@ -10,8 +10,6 @@ spring:
   profiles:
     default: dev
 
-base-url: /api
-
 server:
   port: 8090
 
