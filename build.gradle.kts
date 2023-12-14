@@ -37,6 +37,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-devtools")
+	implementation("net.datafaker:datafaker:2.0.1")
+	implementation("org.instancio:instancio-junit:3.3.0")
 
 	compileOnly("org.projectlombok:lombok")
 
@@ -47,6 +49,8 @@ dependencies {
 
 	annotationProcessor("org.projectlombok:lombok")
 
+	testImplementation(platform("org.junit:junit-bom:5.10.1"))
+	testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	//testImplementation("org.springframework.security:spring-security-test")
 }
