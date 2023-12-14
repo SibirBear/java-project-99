@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -31,10 +30,10 @@ public class User {
     @GeneratedValue(strategy = IDENTITY)
     private long id;
 
-    @NotBlank
+    @NotNull
     private String firstName;
 
-    @NotBlank
+    @NotNull
     private String lastName;
 
     @Column(unique = true)
@@ -42,7 +41,7 @@ public class User {
     private String email;
 
     @NotNull
-    @Size(min = 4)
+    @Size(min = 3)
     private String password;
 
     @CreatedDate
