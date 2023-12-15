@@ -7,6 +7,7 @@ plugins {
 	id("org.springframework.boot") version "3.2.0"
 	id("io.spring.dependency-management") version "1.1.4"
 	id ("com.github.ben-manes.versions") version "0.49.0"
+	id("io.freefair.lombok") version "8.4"
 }
 
 group = "hexlet.code"
@@ -56,7 +57,6 @@ dependencies {
 	testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
 	testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.projectlombok:lombok:1.18.28")
 	//testImplementation("org.springframework.security:spring-security-test")
 }
 

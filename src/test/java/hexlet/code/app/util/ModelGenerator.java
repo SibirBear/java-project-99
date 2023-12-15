@@ -10,9 +10,10 @@ import org.instancio.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Getter
 @Component
+@Getter
 public class ModelGenerator {
+
 	private Model<User> userModel;
 
 	@Autowired
@@ -22,12 +23,20 @@ public class ModelGenerator {
 	private void init() {
 		userModel = Instancio.of(User.class)
 							.ignore(Select.field(User::getId))
-							.supply(Select.field(User::getFirstName), () -> faker.name().firstName())
-							.supply(Select.field(User::getLastName), () -> faker.name().lastName())
-							.supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
-							.supply(Select.field(User::getPassword), () -> faker.internet().password(3, 20))
+							.supply(Select.field(User::getFirstName),
+									() -> faker.name().firstName())
+							.supply(Select.field(User::getLastName),
+									() -> faker.name().lastName())
+							.supply(Select.field(User::getEmail),
+									() -> faker.internet().emailAddress())
+							.supply(Select.field(User::getPassword),
+									() -> faker.internet().password(3, 20))
 							.toModel();
 
 	}
+
+	/*public Model<User> getUserModel() {
+		return this.userModel;
+	}*/
 
 }

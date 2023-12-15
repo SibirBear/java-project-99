@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 public class UserUpdateDTO {
