@@ -81,8 +81,8 @@ class UsersControllerTest {
         var body = result.getResponse().getContentAsString();
 
         assertThatJson(body).and(
-                v -> v.node("firstname").isEqualTo(newUser.getFirstName()),
-                v -> v.node("lastname").isEqualTo(newUser.getLastName()),
+                v -> v.node("firstName").isEqualTo(newUser.getFirstName()),
+                v -> v.node("lastName").isEqualTo(newUser.getLastName()),
                 v -> v.node("email").isEqualTo(newUser.getEmail())
         );
 
@@ -192,8 +192,8 @@ class UsersControllerTest {
     @Test
     @Transactional
     public void testUpdateUserPartial() throws Exception {
-        var fnParams = "firstname";
-        var lnParams = "lastname";
+        var fnParams = "firstName";
+        var lnParams = "lastName";
 
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
