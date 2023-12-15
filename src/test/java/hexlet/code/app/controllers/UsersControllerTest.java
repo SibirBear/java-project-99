@@ -121,9 +121,10 @@ class UsersControllerTest {
     @Transactional
     public void testCreateUserWithoutOptionalParams() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel())
-                              .ignore(Select.field(User::getFirstName))
-                              .ignore(Select.field(User::getLastName))
-                              .create();
+                                .ignore(Select.field(User::getFirstName))
+                                .ignore(Select.field(User::getLastName))
+                                .lenient()
+                                .create();
 
         var request = post(baseUrl)
                               .contentType(MediaType.APPLICATION_JSON)

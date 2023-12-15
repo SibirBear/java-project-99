@@ -30,10 +30,8 @@ public class User implements BaseEntity {
     @GeneratedValue(strategy = IDENTITY)
     private long id;
 
-    @NotNull
     private String firstName;
 
-    @NotNull
     private String lastName;
 
     @Column(unique = true)
