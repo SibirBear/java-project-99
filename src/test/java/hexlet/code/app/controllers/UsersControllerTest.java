@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class UserControllerTest {
+class UsersControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,9 +47,29 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper om;
 
-    private final String baseUrl = "api/user/";
+    private final String baseUrl = "/api/users/";
 
     @Test
+    @Transactional
+    public void testListUser() throws Exception {
+        var newUser1 = Instancio.of(modelGenerator.getUserModel()).create();
+        var newUser2 = Instancio.of(modelGenerator.getUserModel()).create();
+        userRepository.save(newUser1);
+        userRepository.save(newUser2);
+
+        var request = get(baseUrl);
+        var result = mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andReturn();
+        var body = result.getResponse().getContentAsString();
+
+        assertThatJson(body).isArray();
+
+    }
+
+    @Test
+    @Transactional
     public void testGetUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
@@ -68,6 +89,7 @@ class UserControllerTest {
     }
 
     @Test
+    @Transactional
     public void tesGetUserNotFound() throws Exception {
         long id = 9999;
         var request = get(baseUrl + id);
@@ -77,24 +99,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void testListUser() throws Exception {
-        var newUser1 = Instancio.of(modelGenerator.getUserModel()).create();
-        var newUser2 = Instancio.of(modelGenerator.getUserModel()).create();
-        userRepository.save(newUser1);
-        userRepository.save(newUser2);
-
-        var request = get(baseUrl);
-        var result = mockMvc.perform(request)
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$.length()").value(2))
-                             .andReturn();
-        var body = result.getResponse().getContentAsString();
-
-        assertThatJson(body).isArray();
-
-    }
-
-    @Test
+    @Transactional
     public void testCreateUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
 
@@ -113,6 +118,7 @@ class UserControllerTest {
     }
 
     @Test
+    @Transactional
     public void testCreateUserWithoutOptionalParams() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel())
                               .ignore(Select.field(User::getFirstName))
@@ -134,6 +140,7 @@ class UserControllerTest {
     }
 
     @Test
+    @Transactional
     public void testCreateUserWithInvalidPassword() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel())
                               .supply(Select.field(User::getPassword), () -> faker.internet().password(1, 2))
@@ -147,9 +154,10 @@ class UserControllerTest {
     }
 
     @Test
+    @Transactional
     public void testCreateUserWithInvalidEmail() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel())
-                              .supply(Select.field(User::getEmail), () -> faker.name().username())
+                              .supply(Select.field(User::getEmail), () -> faker.name().fullName())
                               .create();
 
         var request = post(baseUrl)
@@ -160,6 +168,7 @@ class UserControllerTest {
     }
 
     @Test
+    @Transactional
     public void testUpdateUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
@@ -181,6 +190,7 @@ class UserControllerTest {
     }
 
     @Test
+    @Transactional
     public void testUpdateUserPartial() throws Exception {
         var fnParams = "firstname";
         var lnParams = "lastname";
@@ -208,6 +218,7 @@ class UserControllerTest {
     }
 
     @Test
+    @Transactional
     public void testDeleteUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
