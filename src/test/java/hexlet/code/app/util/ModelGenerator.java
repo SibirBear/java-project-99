@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
-public class modelGenerator {
+public class ModelGenerator {
 	private Model<User> userModel;
 
 	@Autowired
-	Faker faker;
+	private Faker faker;
 
 	@PostConstruct
 	private void init() {
