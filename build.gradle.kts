@@ -39,6 +39,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-devtools")
 	implementation("net.datafaker:datafaker:2.0.1")
 	implementation("org.instancio:instancio-junit:3.3.0")
+	implementation("org.openapitools:jackson-databind-nullable:0.2.6")
+	implementation("org.mapstruct:mapstruct:1.5.5.Final")
 
 	compileOnly("org.projectlombok:lombok")
 
@@ -48,6 +50,7 @@ dependencies {
 	runtimeOnly("org.postgresql:postgresql")
 
 	annotationProcessor("org.projectlombok:lombok")
+	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
 	testImplementation(platform("org.junit:junit-bom:5.10.1"))
 	testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
