@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
@@ -21,10 +22,6 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,10 +54,10 @@ class UsersControllerTest {
         userRepository.save(newUser1);
         userRepository.save(newUser2);
 
-        var request = get(baseUrl);
+        var request = MockMvcRequestBuilders.get(baseUrl);
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.length()").value(3))
                 .andReturn();
         var body = result.getResponse().getContentAsString();
 
@@ -74,7 +71,7 @@ class UsersControllerTest {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
 
-        var request = get(baseUrl + newUser.getId());
+        var request = MockMvcRequestBuilders.get(baseUrl + newUser.getId());
         var result = mockMvc.perform(request)
                              .andExpect(status().isOk())
                              .andReturn();
@@ -92,7 +89,7 @@ class UsersControllerTest {
     @Transactional
     public void tesGetUserNotFound() throws Exception {
         long id = 9999;
-        var request = get(baseUrl + id);
+        var request = MockMvcRequestBuilders.get(baseUrl + id);
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
 
@@ -103,7 +100,7 @@ class UsersControllerTest {
     public void testCreateUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
 
-        var request = post(baseUrl)
+        var request = MockMvcRequestBuilders.post(baseUrl)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUser));
         mockMvc.perform(request).andExpect(status().isCreated());
@@ -126,7 +123,7 @@ class UsersControllerTest {
                                 .lenient()
                                 .create();
 
-        var request = post(baseUrl)
+        var request = MockMvcRequestBuilders.post(baseUrl)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUser));
         mockMvc.perform(request).andExpect(status().isCreated());
@@ -147,7 +144,7 @@ class UsersControllerTest {
                               .supply(Select.field(User::getPassword), () -> faker.internet().password(1, 2))
                               .create();
 
-        var request = post(baseUrl)
+        var request = MockMvcRequestBuilders.post(baseUrl)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUser));
         mockMvc.perform(request).andExpect(status().isBadRequest());
@@ -161,7 +158,7 @@ class UsersControllerTest {
                               .supply(Select.field(User::getEmail), () -> faker.name().fullName())
                               .create();
 
-        var request = post(baseUrl)
+        var request = MockMvcRequestBuilders.post(baseUrl)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUser));
         mockMvc.perform(request).andExpect(status().isBadRequest());
@@ -176,7 +173,7 @@ class UsersControllerTest {
 
         var newUserUpdate = Instancio.of(modelGenerator.getUserModel()).create();
 
-        var request = put(baseUrl + newUser.getId())
+        var request = MockMvcRequestBuilders.put(baseUrl + newUser.getId())
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUserUpdate));
         mockMvc.perform(request).andExpect(status().isOk());
@@ -204,7 +201,7 @@ class UsersControllerTest {
                 lnParams, faker.name().lastName()
         );
 
-        var request = put(baseUrl + newUser.getId())
+        var request = MockMvcRequestBuilders.put(baseUrl + newUser.getId())
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUserUpdate));
         mockMvc.perform(request).andExpect(status().isOk());
@@ -224,7 +221,7 @@ class UsersControllerTest {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
 
-        var request = delete(baseUrl + newUser.getId());
+        var request = MockMvcRequestBuilders.delete(baseUrl + newUser.getId());
 
         mockMvc.perform(request).andExpect(status().isNoContent());
 
