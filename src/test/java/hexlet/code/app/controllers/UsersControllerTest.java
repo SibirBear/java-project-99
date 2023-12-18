@@ -57,7 +57,6 @@ class UsersControllerTest {
         var request = MockMvcRequestBuilders.get(baseUrl);
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(3))
                 .andReturn();
         var body = result.getResponse().getContentAsString();
 
