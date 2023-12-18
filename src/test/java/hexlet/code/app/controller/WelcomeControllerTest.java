@@ -1,4 +1,4 @@
-package hexlet.code.app.controllers;
+package hexlet.code.app.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

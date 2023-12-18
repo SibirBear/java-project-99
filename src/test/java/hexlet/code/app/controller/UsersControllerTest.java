@@ -1,7 +1,7 @@
-package hexlet.code.app.controllers;
+package hexlet.code.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.app.models.User;
+import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
 import hexlet.code.app.util.ModelGenerator;
 import net.datafaker.Faker;

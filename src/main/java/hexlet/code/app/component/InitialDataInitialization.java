@@ -1,6 +1,6 @@
 package hexlet.code.app.component;
 
-import hexlet.code.app.models.User;
+import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

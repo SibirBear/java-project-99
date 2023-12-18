@@ -1,6 +1,6 @@
 package hexlet.code.app.util;
 
-import hexlet.code.app.models.User;
+import hexlet.code.app.model.User;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import net.datafaker.Faker;
