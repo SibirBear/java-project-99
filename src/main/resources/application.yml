@@ -15,7 +15,7 @@ server:
 
 rsa:
   private-key: classpath:certs/private99.pem
-  public-key: classpath:certs/public99.pem
+  public-key: classpath:certs/public.pem
 
 base-url: /api
 
