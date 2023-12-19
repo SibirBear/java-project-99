@@ -19,7 +19,7 @@ public class InitialDataInitialization implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         var user = new User();
         user.setEmail("hexlet@example.com");
-        user.setPassword("qwerty");
+        user.setPasswordDigest("qwerty");
         userRepository.save(user);
 
     }

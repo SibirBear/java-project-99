@@ -18,6 +18,6 @@ public class UserCreateDTO {
 
     @NotNull
     @Size(min = 3)
-    private String password;
+    private String passwordDigest;
 
 }
