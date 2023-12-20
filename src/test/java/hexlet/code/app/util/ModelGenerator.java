@@ -29,14 +29,10 @@ public class ModelGenerator {
 									() -> faker.name().lastName())
 							.supply(Select.field(User::getEmail),
 									() -> faker.internet().emailAddress())
-							.supply(Select.field(User::getPassword),
+							.supply(Select.field(User::getPasswordDigest),
 									() -> faker.internet().password(3, 20))
 							.toModel();
 
 	}
-
-	/*public Model<User> getUserModel() {
-		return this.userModel;
-	}*/
 
 }
