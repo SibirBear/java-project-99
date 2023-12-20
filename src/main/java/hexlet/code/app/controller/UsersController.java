@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,15 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users/")
+@RequestMapping("${base-url}${users-url}")
 @AllArgsConstructor
 public class UsersController {
 
     @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
+
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -42,7 +46,7 @@ public class UsersController {
 
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserDTO getUser(@PathVariable final long id) {
         var user = userRepository.findById(id)
@@ -56,13 +60,15 @@ public class UsersController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO createUser(@Valid @RequestBody final UserCreateDTO userBody) {
         var user = userMapper.map(userBody);
+        var encodePassword = passwordEncoder.encode(user.getPassword());
+        user.setPasswordDigest(encodePassword);
         userRepository.save(user);
 
         return userMapper.map(user);
 
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserDTO updateUser(@Valid @RequestBody final UserUpdateDTO userBody,
                               @PathVariable final long id) {
@@ -75,7 +81,7 @@ public class UsersController {
 
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable final long id) {
         userRepository.deleteById(id);

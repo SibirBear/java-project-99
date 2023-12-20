@@ -2,6 +2,7 @@ package hexlet.code.app.config;
 
 import hexlet.code.app.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,6 +33,15 @@ public class SecurityConfig {
     @Autowired
     private JwtDecoder jwtDecoder;
 
+    @Value("${base-url}")
+    private String baseUrl;
+    @Value("${welcome-url}")
+    private String welcomeUrl;
+    @Value("${users-url}")
+    private String usersUrl;
+    @Value("${login-url}")
+    private String loginUrl;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
                                                    HandlerMappingIntrospector introspector) throws Exception {
@@ -39,8 +49,10 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(mvcMatcherBuilder.pattern("/api/login")).permitAll()
-                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, "/api/users")).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern(welcomeUrl)).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern(baseUrl + loginUrl)).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, baseUrl + usersUrl)).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer((rs) -> rs.jwt((jwt) -> jwt.decoder(jwtDecoder)))
