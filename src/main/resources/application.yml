@@ -18,4 +18,7 @@ rsa:
   public-key: classpath:certs/public.pem
 
 base-url: /api
+welcome-url: /welcome
+users-url: /users
+login-url: /login
 
