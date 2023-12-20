@@ -9,12 +9,13 @@ import org.instancio.Instancio;
 import org.instancio.Select;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Map;
 
@@ -22,11 +23,12 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@RequestMapping("${base-url}/{users-url}")
 class UsersControllerTest {
 
     @Autowired
@@ -44,17 +46,17 @@ class UsersControllerTest {
     @Autowired
     private ObjectMapper om;
 
-    private final String baseUrl = "/api/users/";
+    @Value("${base-url}${users-url}")
+    private String baseUrl;
 
     @Test
-    @Transactional
-    public void testListUser() throws Exception {
+    public void testListUserWithAuth() throws Exception {
         var newUser1 = Instancio.of(modelGenerator.getUserModel()).create();
         var newUser2 = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser1);
         userRepository.save(newUser2);
 
-        var request = MockMvcRequestBuilders.get(baseUrl);
+        var request = MockMvcRequestBuilders.get(baseUrl).with(jwt());
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -65,12 +67,24 @@ class UsersControllerTest {
     }
 
     @Test
-    @Transactional
+    public void testListUserWithoutAuth() throws Exception {
+        var newUser1 = Instancio.of(modelGenerator.getUserModel()).create();
+        var newUser2 = Instancio.of(modelGenerator.getUserModel()).create();
+        userRepository.save(newUser1);
+        userRepository.save(newUser2);
+
+        var request = MockMvcRequestBuilders.get(baseUrl);
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
     public void testGetUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
 
-        var request = MockMvcRequestBuilders.get(baseUrl + newUser.getId());
+        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newUser.getId(), newUser.getId()).with(jwt());
         var result = mockMvc.perform(request)
                              .andExpect(status().isOk())
                              .andReturn();
@@ -85,17 +99,15 @@ class UsersControllerTest {
     }
 
     @Test
-    @Transactional
     public void tesGetUserNotFound() throws Exception {
         long id = 9999;
-        var request = MockMvcRequestBuilders.get(baseUrl + id);
+        var request = MockMvcRequestBuilders.get(baseUrl + "/" + id).with(jwt());
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
 
     }
 
     @Test
-    @Transactional
     public void testCreateUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
 
@@ -109,12 +121,11 @@ class UsersControllerTest {
         assertNotNull(user);
         assertThat(user.getFirstName()).isEqualTo(newUser.getFirstName());
         assertThat(user.getLastName()).isEqualTo(newUser.getLastName());
-        assertThat(user.getPassword()).isEqualTo(newUser.getPassword());
+        assertThat(user.getPasswordDigest()).isNotEqualTo(newUser.getPasswordDigest());
 
     }
 
     @Test
-    @Transactional
     public void testCreateUserWithoutOptionalParams() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel())
                                 .ignore(Select.field(User::getFirstName))
@@ -132,15 +143,14 @@ class UsersControllerTest {
         assertNotNull(user);
         assertNull(user.getFirstName());
         assertNull(user.getLastName());
-        assertThat(user.getPassword()).isEqualTo(newUser.getPassword());
+        assertThat(user.getPasswordDigest()).isNotEqualTo(newUser.getPasswordDigest());
 
     }
 
     @Test
-    @Transactional
     public void testCreateUserWithInvalidPassword() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel())
-                              .supply(Select.field(User::getPassword), () -> faker.internet().password(1, 2))
+                              .supply(Select.field(User::getPasswordDigest), () -> faker.internet().password(1, 2))
                               .create();
 
         var request = MockMvcRequestBuilders.post(baseUrl)
@@ -151,7 +161,6 @@ class UsersControllerTest {
     }
 
     @Test
-    @Transactional
     public void testCreateUserWithInvalidEmail() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel())
                               .supply(Select.field(User::getEmail), () -> faker.name().fullName())
@@ -165,14 +174,13 @@ class UsersControllerTest {
     }
 
     @Test
-    @Transactional
     public void testUpdateUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
 
         var newUserUpdate = Instancio.of(modelGenerator.getUserModel()).create();
 
-        var request = MockMvcRequestBuilders.put(baseUrl + newUser.getId())
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId()).with(jwt())
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUserUpdate));
         mockMvc.perform(request).andExpect(status().isOk());
@@ -180,14 +188,27 @@ class UsersControllerTest {
         var user = userRepository.findById(newUser.getId()).orElse(null);
 
         assertNotNull(user);
-        assertThat(user.getFirstName()).isEqualTo(newUser.getFirstName());
-        assertThat(user.getLastName()).isEqualTo(newUser.getLastName());
-        assertThat(user.getEmail()).isEqualTo(newUser.getEmail());
-        assertThat(user.getPassword()).isEqualTo(newUser.getPassword());
+        assertThat(user.getFirstName()).isEqualTo(newUserUpdate.getFirstName());
+        assertThat(user.getLastName()).isEqualTo(newUserUpdate.getLastName());
+        assertThat(user.getEmail()).isEqualTo(newUserUpdate.getEmail());
+        assertThat(user.getPasswordDigest()).isEqualTo(newUserUpdate.getPasswordDigest());
     }
 
     @Test
-    @Transactional
+    public void testUpdateUserWithoutAuth() throws Exception {
+        var newUser = Instancio.of(modelGenerator.getUserModel()).create();
+        userRepository.save(newUser);
+
+        var newUserUpdate = Instancio.of(modelGenerator.getUserModel()).create();
+
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(newUserUpdate));
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
     public void testUpdateUserPartial() throws Exception {
         var fnParams = "firstName";
         var lnParams = "lastName";
@@ -200,7 +221,7 @@ class UsersControllerTest {
                 lnParams, faker.name().lastName()
         );
 
-        var request = MockMvcRequestBuilders.put(baseUrl + newUser.getId())
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId()).with(jwt())
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUserUpdate));
         mockMvc.perform(request).andExpect(status().isOk());
@@ -211,22 +232,35 @@ class UsersControllerTest {
         assertThat(user.getFirstName()).isEqualTo(newUserUpdate.get(fnParams));
         assertThat(user.getLastName()).isEqualTo(newUserUpdate.get(lnParams));
         assertThat(user.getEmail()).isEqualTo(newUser.getEmail());
-        assertThat(user.getPassword()).isEqualTo(newUser.getPassword());
+        assertThat(user.getPasswordDigest()).isEqualTo(newUser.getPasswordDigest());
     }
 
     @Test
-    @Transactional
     public void testDeleteUser() throws Exception {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
 
-        var request = MockMvcRequestBuilders.delete(baseUrl + newUser.getId());
+        var request = MockMvcRequestBuilders
+                .delete(baseUrl + "/" + newUser.getId(), newUser.getId())
+                .with(jwt());
 
         mockMvc.perform(request).andExpect(status().isNoContent());
 
         var user = userRepository.findById(newUser.getId()).orElse(null);
 
         assertNull(user);
+
+    }
+
+    @Test
+    public void testDeleteUserWithoutAuth() throws Exception {
+        var newUser = Instancio.of(modelGenerator.getUserModel()).create();
+        userRepository.save(newUser);
+
+        var request = MockMvcRequestBuilders
+                .delete(baseUrl + "/" + newUser.getId());
+
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
 
     }
 
