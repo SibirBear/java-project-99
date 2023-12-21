@@ -19,12 +19,17 @@ public class InitialDataInitialization implements ApplicationRunner {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
+    private final String emailService = "hexlet@example.com";
+    private final String passService = "qwerty";
+
     @Override
     public void run(ApplicationArguments args) {
-        var user = new User();
-        user.setEmail("hexlet@example.com");
-        user.setPasswordDigest(passwordEncoder.encode("qwerty"));
-        userRepository.save(user);
+        userRepository.findByEmail(emailService).orElseGet(() -> {
+            var user = new User();
+            user.setEmail(emailService);
+            user.setPasswordDigest(passwordEncoder.encode(passService));
+            return userRepository.save(user);
+        });
 
     }
 
