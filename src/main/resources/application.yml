@@ -13,6 +13,10 @@ spring:
 server:
   port: 8090
 
+rsa:
+  private-key: classpath:certs/private99.pem
+  public-key: classpath:certs/public.pem
+
 base-url: /api
 welcome-url: /welcome
 users-url: /users
