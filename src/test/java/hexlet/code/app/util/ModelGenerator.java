@@ -38,11 +38,15 @@ public class ModelGenerator {
 		taskStatusModel = Instancio.of(TaskStatus.class)
 							.ignore(Select.field(TaskStatus::getId))
 							.supply(Select.field(TaskStatus::getName),
-									() -> faker.book().genre())
+									() -> faker.book().author() + generateRandom())
 							.supply(Select.field(TaskStatus::getSlug),
-									() -> faker.internet().httpMethod())
+									() -> faker.lorem().word() + generateRandom())
 							.toModel();
 
+	}
+
+	private String generateRandom() {
+		return String.valueOf(Math.abs(Math.random() * 100));
 	}
 
 }

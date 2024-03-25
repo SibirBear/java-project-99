@@ -51,7 +51,8 @@ class TaskStatusControllerTest {
         var newTaskStatus = Instancio.of(modelGenerator.getTaskStatusModel()).create();
         taskStatusRepository.save(newTaskStatus);
 
-        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newTaskStatus.getId());
+        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newTaskStatus.getId(),
+                                                                newTaskStatus.getId()).with(jwt());
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -68,7 +69,7 @@ class TaskStatusControllerTest {
     @Test
     public void testGetTaskStatusNotFound() throws Exception {
         long id = Long.MAX_VALUE;
-        var request = MockMvcRequestBuilders.get(baseUrl + "/" + id);
+        var request = MockMvcRequestBuilders.get(baseUrl + "/" + id).with(jwt());
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
@@ -81,7 +82,7 @@ class TaskStatusControllerTest {
         var newTaskStatus = Instancio.of(modelGenerator.getTaskStatusModel()).create();
         taskStatusRepository.save(newTaskStatus);
 
-        var request = MockMvcRequestBuilders.get(baseUrl);
+        var request = MockMvcRequestBuilders.get(baseUrl).with(jwt());
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
