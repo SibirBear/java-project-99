@@ -17,9 +17,9 @@ rsa:
   private-key: classpath:certs/private99.pem
   public-key: classpath:certs/public.pem
 
+# основные маршруты
 base-url: /api
 welcome-url: /welcome
 users-url: /users
 login-url: /login
 task-statuses-url: /task_statuses
-

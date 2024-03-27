@@ -35,6 +35,9 @@ public class ModelGenerator {
 									() -> faker.internet().password(3, 20))
 							.toModel();
 
+		// иногда падали тесты, совершенно рандомно: могли упасть все, часть или вообще ни одного
+		// было решено добавить случайное число к сгенерируемому значению поля
+		// для этого реализован метод, который возвращает случайное число
 		taskStatusModel = Instancio.of(TaskStatus.class)
 							.ignore(Select.field(TaskStatus::getId))
 							.supply(Select.field(TaskStatus::getName),
