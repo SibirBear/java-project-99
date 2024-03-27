@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class taskCreateDTO {
+public class TaskCreateDTO {
 
     @NotBlank
     private String name;

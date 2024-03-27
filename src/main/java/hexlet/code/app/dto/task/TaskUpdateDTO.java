@@ -8,7 +8,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 
 @Getter
 @Setter
-public class taskUpdateDTO {
+public class TaskUpdateDTO {
 
     @NotBlank
     private JsonNullable<String> name;
