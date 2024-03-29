@@ -82,7 +82,7 @@ class UsersControllerTest {
         var newUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(newUser);
 
-        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newUser.getId(), newUser.getId()).with(jwt());
+        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newUser.getId()).with(jwt());
         var result = mockMvc.perform(request)
                              .andExpect(status().isOk())
                              .andReturn();
@@ -239,7 +239,7 @@ class UsersControllerTest {
         userRepository.save(newUser);
 
         var request = MockMvcRequestBuilders
-                .delete(baseUrl + "/" + newUser.getId(), newUser.getId())
+                .delete(baseUrl + "/" + newUser.getId())
                 .with(jwt());
 
         mockMvc.perform(request).andExpect(status().isNoContent());

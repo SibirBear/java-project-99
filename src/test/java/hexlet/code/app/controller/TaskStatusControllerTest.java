@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.util.ModelGenerator;
-import net.datafaker.Faker;
 import org.instancio.Instancio;
 import org.instancio.Select;
 import org.junit.jupiter.api.Test;
@@ -34,9 +33,6 @@ class TaskStatusControllerTest {
     private TaskStatusRepository taskStatusRepository;
 
     @Autowired
-    private Faker faker;
-
-    @Autowired
     private ModelGenerator modelGenerator;
 
     @Autowired
@@ -45,14 +41,12 @@ class TaskStatusControllerTest {
     @Value("${base-url}${task-statuses-url}")
     private String baseUrl;
 
-    //id
     @Test
     public void testGetTaskStatus() throws Exception {
         var newTaskStatus = Instancio.of(modelGenerator.getTaskStatusModel()).create();
         taskStatusRepository.save(newTaskStatus);
 
-        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newTaskStatus.getId(),
-                                                                newTaskStatus.getId()).with(jwt());
+        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newTaskStatus.getId()).with(jwt());
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -76,7 +70,6 @@ class TaskStatusControllerTest {
 
     }
 
-    //list
     @Test
     public void testListTaskStatuses() throws Exception {
         var newTaskStatus = Instancio.of(modelGenerator.getTaskStatusModel()).create();
@@ -92,7 +85,6 @@ class TaskStatusControllerTest {
 
     }
 
-    //create
     @Test
     public void testTaskStatusCreate() throws Exception {
         var newTaskStatus = Instancio.of(modelGenerator.getTaskStatusModel()).create();
@@ -149,7 +141,6 @@ class TaskStatusControllerTest {
 
     }
 
-    //update
     @Test
     public void testUpdateTaskStatus() throws Exception {
         var newTaskStatus = Instancio.of(modelGenerator.getTaskStatusModel()).create();
@@ -175,7 +166,7 @@ class TaskStatusControllerTest {
         var newTaskStatus = Instancio.of(modelGenerator.getTaskStatusModel()).create();
         taskStatusRepository.save(newTaskStatus);
 
-        var newTaskStatusUpdate = Instancio.of(modelGenerator.getUserModel()).create();
+        var newTaskStatusUpdate = Instancio.of(modelGenerator.getTaskStatusModel()).create();
 
         var request = MockMvcRequestBuilders.put(baseUrl + "/" + newTaskStatus.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -202,6 +193,7 @@ class TaskStatusControllerTest {
         var taskStatus = taskStatusRepository.findById(newTaskStatus.getId()).orElse(null);
 
         assertNotNull(taskStatus);
+
         assertThat(taskStatus.getName()).isEqualTo(newTaskStatus.getName());
         assertThat(taskStatus.getSlug()).isEqualTo(newTaskStatusUpdate.getSlug());
 
@@ -213,8 +205,7 @@ class TaskStatusControllerTest {
         taskStatusRepository.save(newTaskStatus);
 
         var request = MockMvcRequestBuilders
-                .delete(baseUrl + "/" + newTaskStatus.getId(), newTaskStatus.getId())
-                .with(jwt());
+                .delete(baseUrl + "/" + newTaskStatus.getId()).with(jwt());
 
         mockMvc.perform(request).andExpect(status().isNoContent());
 
