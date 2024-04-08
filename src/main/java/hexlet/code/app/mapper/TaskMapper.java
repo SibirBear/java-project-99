@@ -19,16 +19,14 @@ import org.mapstruct.ReportingPolicy;
 )
 public abstract class TaskMapper {
 
-    @Mapping(target = "assignee.id", source = "assigneeId")
+    @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "taskStatus.slug", source = "taskStatus")
     public abstract Task map(TaskCreateDTO dto);
 
     @Mapping(target = "assigneeId", source = "assignee.id")
     @Mapping(target = "taskStatus", source = "taskStatus.slug")
-    public abstract TaskDTO map(Task taskStatus);
+    public abstract TaskDTO map(Task task);
 
-    @Mapping(target = "assignee", source = "assigneeId")
-    @Mapping(target = "taskStatus.slug", source = "taskStatus")
     public abstract void update(TaskUpdateDTO dto, @MappingTarget Task task);
 
 }

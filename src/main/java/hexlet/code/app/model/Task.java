@@ -1,16 +1,18 @@
 package hexlet.code.app.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -19,8 +21,8 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "tasks")
 @EntityListeners(AuditingEntityListener.class)
-@Data
-@Accessors(chain = true)
+@Getter
+@Setter
 public class Task implements BaseEntity {
 
     @Id
@@ -32,9 +34,10 @@ public class Task implements BaseEntity {
 
     private Integer index;
 
+    @Lob
     private String description;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @NotNull
     private TaskStatus taskStatus;
 
