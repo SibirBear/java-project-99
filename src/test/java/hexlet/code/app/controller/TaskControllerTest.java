@@ -86,32 +86,6 @@ class TaskControllerTest {
         taskRepository.deleteById(testTask.getId());
     }
 
-    /*private TaskCreateDTO getCreateTaskDto(Task task) {
-        TaskCreateDTO dto = new TaskCreateDTO();
-
-        dto.setName(task.getName());
-        dto.setIndex(task.getIndex());
-        dto.setDescription(task.getDescription());
-        dto.setAssigneeId(task.getAssignee().getId());
-        dto.setTaskStatus(task.getTaskStatus().getSlug());
-
-        return dto;
-
-    }
-
-    private TaskUpdateDTO getUpdateTaskDto(Task task) {
-        TaskUpdateDTO dto = new TaskUpdateDTO();
-
-        dto.setName(JsonNullable.of(task.getName()));
-        dto.setIndex(JsonNullable.of(task.getIndex()));
-        dto.setDescription(JsonNullable.of(task.getDescription()));
-        dto.setAssigneeId(JsonNullable.of(task.getAssignee().getId()));
-        dto.setTaskStatus(JsonNullable.of(task.getTaskStatus().getSlug()));
-
-        return dto;
-
-    }*/
-
     @Test
     public void testGetTask() throws Exception {
         var request = MockMvcRequestBuilders.get(baseUrl + "/" + testTask.getId()).with(jwt());
@@ -319,6 +293,19 @@ class TaskControllerTest {
         assertThat(task.getDescription()).isEqualTo(testTask.getDescription());
         assertThat(task.getTaskStatus().getSlug()).isEqualTo(testTask.getTaskStatus().getSlug());
         assertThat(task.getAssignee().getId()).isEqualTo(testTask.getAssignee().getId());
+
+    }
+
+    @Test
+    public void testUpdateTaskPartialWithWrongTaskStatus() throws Exception {
+
+        var dto = new TaskUpdateDTO();
+        dto.setTaskStatus(JsonNullable.of("something-wrong"));
+
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + testTask.getId()).with(jwt())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(dto));
+        mockMvc.perform(request).andExpect(status().isNotFound());
 
     }
 
