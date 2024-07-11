@@ -24,6 +24,10 @@ users-url: /users
 login-url: /login
 task-statuses-url: /task_statuses
 task-url: /tasks
+label-url: /labels
+
+# дефолтные значения сущностей
 const-user-email: hexlet@example.com
 const-user-pass: qwerty
 const-task-status-slugs: draft,to_review,to_be_fixed,to_publish,published
+const-labels: feature,bug
