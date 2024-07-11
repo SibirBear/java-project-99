@@ -118,7 +118,7 @@ public class TaskController {
 
     //delete
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public void deleteTask(@PathVariable final long id) {
         taskRepository.deleteById(id);
     }

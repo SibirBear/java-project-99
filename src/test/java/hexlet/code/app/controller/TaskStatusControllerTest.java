@@ -207,7 +207,7 @@ class TaskStatusControllerTest {
         var request = MockMvcRequestBuilders
                 .delete(baseUrl + "/" + newTaskStatus.getId()).with(jwt());
 
-        mockMvc.perform(request).andExpect(status().isNoContent());
+        mockMvc.perform(request).andExpect(status().isNotFound());
 
         var taskStatus = taskStatusRepository.findById(newTaskStatus.getId()).orElse(null);
 

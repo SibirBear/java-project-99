@@ -314,7 +314,7 @@ class TaskControllerTest {
         var request = MockMvcRequestBuilders
                 .delete(baseUrl + "/" + testTask.getId()).with(jwt());
 
-        mockMvc.perform(request).andExpect(status().isNoContent());
+        mockMvc.perform(request).andExpect(status().isNotFound());
 
         var task = taskStatusRepository.findById(testTask.getId()).orElse(null);
 
