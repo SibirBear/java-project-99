@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dto.task.TaskUpdateDTO;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
+import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +57,9 @@ class TaskControllerTest {
     private UserRepository userRepository;
 
     @Autowired
+    private LabelRepository labelRepository;
+
+    @Autowired
     private TaskMapper taskMapper;
 
     @Value("${base-url}${task-url}")
@@ -66,6 +71,9 @@ class TaskControllerTest {
     @Value("#{'${const-task-status-slugs}'.split(',')}")
     private List<String> taskStatuses;
 
+    @Value("#{'${const-labels}'.split(',')}")
+    private List<String> defaultLabels;
+
     private Task testTask;
 
     @BeforeEach
@@ -76,6 +84,8 @@ class TaskControllerTest {
                 .orElseThrow(() -> new RuntimeException("TaskStatus not found.")));
         testTask.setAssignee(userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found.")));
+        testTask.setLabels(labelRepository.findByName(defaultLabels.get(0))
+                .stream().collect(Collectors.toSet()));
 
         taskRepository.save(testTask);
 

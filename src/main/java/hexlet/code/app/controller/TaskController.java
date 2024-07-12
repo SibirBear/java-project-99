@@ -5,6 +5,8 @@ import hexlet.code.app.dto.task.TaskDTO;
 import hexlet.code.app.dto.task.TaskUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskMapper;
+import hexlet.code.app.model.Label;
+import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${base-url}${task-url}")
@@ -35,6 +39,9 @@ public class TaskController {
 
     @Autowired
     private final UserRepository userRepository;
+
+    @Autowired
+    private final LabelRepository labelRepository;
 
     @Autowired
     private final TaskStatusRepository taskStatusRepository;
@@ -82,6 +89,9 @@ public class TaskController {
         var taskStatus = taskStatusRepository.findBySlug(slug).orElse(null);
         task.setTaskStatus(taskStatus);
 
+        var labels = task.getLabels();
+        labels.forEach(label -> label.addTask(task));
+
         taskRepository.save(task);
 
         return taskMapper.map(task);
@@ -110,6 +120,12 @@ public class TaskController {
             task.setTaskStatus(taskStatus);
         }
 
+        Set<Long> labelsId = task.getLabels().stream()
+                .map(Label::getId)
+                .collect(Collectors.toSet());
+        Set<Label> labels = labelRepository.findByIdIn(labelsId);
+        labels.forEach(a -> a.addTask(task));
+
         taskRepository.save(task);
 
         return taskMapper.map(task);
@@ -120,6 +136,10 @@ public class TaskController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void deleteTask(@PathVariable final long id) {
+        var task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Task with id %s not found", id)));
+        task.getLabels().forEach(label -> label.removeTask(task));
+
         taskRepository.deleteById(id);
     }
 

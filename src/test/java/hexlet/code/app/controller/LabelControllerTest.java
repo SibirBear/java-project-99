@@ -61,7 +61,8 @@ class LabelControllerTest {
 
     private JwtRequestPostProcessor token;
 
-    private Label testLabel, newLabel;
+    private Label testLabel;
+    private Label newLabel;
 
     @Value("${base-url}${label-url}")
     private String baseUrl;
@@ -149,7 +150,7 @@ class LabelControllerTest {
 
     @Test
     public void testUpdateLabelPositive() throws Exception {
-        var request = MockMvcRequestBuilders.put(baseUrl +"/{id}", testLabel.getId())
+        var request = MockMvcRequestBuilders.put(baseUrl + "/{id}", testLabel.getId())
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(labelMapper.map(newLabel)));
@@ -166,7 +167,7 @@ class LabelControllerTest {
 
     @Test
     public void testUpdateLabelNegativeWithoutAuth() throws Exception {
-        var request = MockMvcRequestBuilders.put(baseUrl +"/{id}", testLabel.getId())
+        var request = MockMvcRequestBuilders.put(baseUrl + "/{id}", testLabel.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(labelMapper.map(newLabel)));
         mockMvc.perform(request)
