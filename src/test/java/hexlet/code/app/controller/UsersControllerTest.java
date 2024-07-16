@@ -7,12 +7,15 @@ import hexlet.code.app.util.ModelGenerator;
 import net.datafaker.Faker;
 import org.instancio.Instancio;
 import org.instancio.Select;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -47,14 +50,28 @@ class UsersControllerTest {
     @Value("${base-url}${users-url}")
     private String baseUrl;
 
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
+    private User newUser1;
+    private User newUser2;
+
+    @BeforeEach
+    void setUp() {
+        newUser1 = Instancio.of(modelGenerator.getUserModel()).create();
+        newUser2 = Instancio.of(modelGenerator.getUserModel()).create();
+        userRepository.save(newUser2);
+        token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
+    }
+
+    @AfterEach
+    void tearDown() {
+        userRepository.deleteById(newUser2.getId());
+        userRepository.deleteById(newUser1.getId());
+
+    }
+
     @Test
     public void testListUserWithAuth() throws Exception {
-        var newUser1 = Instancio.of(modelGenerator.getUserModel()).create();
-        var newUser2 = Instancio.of(modelGenerator.getUserModel()).create();
-        userRepository.save(newUser1);
-        userRepository.save(newUser2);
-
-        var request = MockMvcRequestBuilders.get(baseUrl).with(jwt());
+        var request = MockMvcRequestBuilders.get(baseUrl).with(token);
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -66,11 +83,6 @@ class UsersControllerTest {
 
     @Test
     public void testListUserWithoutAuth() throws Exception {
-        var newUser1 = Instancio.of(modelGenerator.getUserModel()).create();
-        var newUser2 = Instancio.of(modelGenerator.getUserModel()).create();
-        userRepository.save(newUser1);
-        userRepository.save(newUser2);
-
         var request = MockMvcRequestBuilders.get(baseUrl);
         mockMvc.perform(request)
                 .andExpect(status().isUnauthorized());
@@ -79,19 +91,17 @@ class UsersControllerTest {
 
     @Test
     public void testGetUser() throws Exception {
-        var newUser = Instancio.of(modelGenerator.getUserModel()).create();
-        userRepository.save(newUser);
-
-        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newUser.getId()).with(jwt());
+        var request = MockMvcRequestBuilders.get(baseUrl + "/" + newUser2.getId())
+                .with(token);
         var result = mockMvc.perform(request)
                              .andExpect(status().isOk())
                              .andReturn();
         var body = result.getResponse().getContentAsString();
 
         assertThatJson(body).and(
-                v -> v.node("firstName").isEqualTo(newUser.getFirstName()),
-                v -> v.node("lastName").isEqualTo(newUser.getLastName()),
-                v -> v.node("email").isEqualTo(newUser.getEmail())
+                v -> v.node("firstName").isEqualTo(newUser2.getFirstName()),
+                v -> v.node("lastName").isEqualTo(newUser2.getLastName()),
+                v -> v.node("email").isEqualTo(newUser2.getEmail())
         );
 
     }
@@ -99,7 +109,8 @@ class UsersControllerTest {
     @Test
     public void tesGetUserNotFound() throws Exception {
         long id = 9999;
-        var request = MockMvcRequestBuilders.get(baseUrl + "/" + id).with(jwt());
+        var request = MockMvcRequestBuilders.get(baseUrl + "/" + id)
+                .with(token);
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
 
@@ -107,19 +118,17 @@ class UsersControllerTest {
 
     @Test
     public void testCreateUser() throws Exception {
-        var newUser = Instancio.of(modelGenerator.getUserModel()).create();
-
-        var request = MockMvcRequestBuilders.post(baseUrl)
+        var request = MockMvcRequestBuilders.post(baseUrl).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
-                              .content(om.writeValueAsString(newUser));
+                              .content(om.writeValueAsString(newUser1));
         mockMvc.perform(request).andExpect(status().isCreated());
 
-        var user = userRepository.findByEmail(newUser.getEmail()).orElse(null);
+        var user = userRepository.findByEmail(newUser1.getEmail()).orElse(null);
 
         assertNotNull(user);
-        assertThat(user.getFirstName()).isEqualTo(newUser.getFirstName());
-        assertThat(user.getLastName()).isEqualTo(newUser.getLastName());
-        assertThat(user.getPasswordDigest()).isNotEqualTo(newUser.getPasswordDigest());
+        assertThat(user.getFirstName()).isEqualTo(newUser1.getFirstName());
+        assertThat(user.getLastName()).isEqualTo(newUser1.getLastName());
+        assertThat(user.getPasswordDigest()).isNotEqualTo(newUser1.getPasswordDigest());
 
     }
 
@@ -131,7 +140,7 @@ class UsersControllerTest {
                                 .lenient()
                                 .create();
 
-        var request = MockMvcRequestBuilders.post(baseUrl)
+        var request = MockMvcRequestBuilders.post(baseUrl).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUser));
         mockMvc.perform(request).andExpect(status().isCreated());
@@ -151,7 +160,7 @@ class UsersControllerTest {
                               .supply(Select.field(User::getPasswordDigest), () -> faker.internet().password(1, 2))
                               .create();
 
-        var request = MockMvcRequestBuilders.post(baseUrl)
+        var request = MockMvcRequestBuilders.post(baseUrl).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUser));
         mockMvc.perform(request).andExpect(status().isBadRequest());
@@ -164,7 +173,7 @@ class UsersControllerTest {
                               .supply(Select.field(User::getEmail), () -> faker.name().fullName())
                               .create();
 
-        var request = MockMvcRequestBuilders.post(baseUrl)
+        var request = MockMvcRequestBuilders.post(baseUrl).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUser));
         mockMvc.perform(request).andExpect(status().isBadRequest());
@@ -178,7 +187,7 @@ class UsersControllerTest {
 
         var newUserUpdate = Instancio.of(modelGenerator.getUserModel()).create();
 
-        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId()).with(jwt())
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId()).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUserUpdate));
         mockMvc.perform(request).andExpect(status().isOk());
@@ -219,7 +228,7 @@ class UsersControllerTest {
                 lnParams, faker.name().lastName()
         );
 
-        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId()).with(jwt())
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId()).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUserUpdate));
         mockMvc.perform(request).andExpect(status().isOk());
@@ -240,7 +249,7 @@ class UsersControllerTest {
 
         var request = MockMvcRequestBuilders
                 .delete(baseUrl + "/" + newUser.getId())
-                .with(jwt());
+                .with(token);
 
         mockMvc.perform(request).andExpect(status().isNoContent());
 
