@@ -18,8 +18,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -43,20 +44,27 @@ public class SecurityConfig {
     @Value("${login-url}")
     private String loginUrl;
 
+    public static final RequestMatcher WHITE_URLS = new OrRequestMatcher(
+            new AntPathRequestMatcher("/"),
+            new AntPathRequestMatcher("/index.html"),
+            new AntPathRequestMatcher("/assets/**"),
+            new AntPathRequestMatcher("/h2console/**"),
+            new AntPathRequestMatcher("/v3/api-docs/**"),
+            new AntPathRequestMatcher("/api-docs/**"),
+            new AntPathRequestMatcher("/swagger-ui.html"),
+            new AntPathRequestMatcher("/swagger-ui/**")
+    );
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
-                                                   HandlerMappingIntrospector introspector) throws Exception {
-        var mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(mvcMatcherBuilder.pattern(welcomeUrl)).permitAll()
-                        .requestMatchers(mvcMatcherBuilder.pattern(baseUrl + loginUrl)).permitAll()
-                        .requestMatchers(mvcMatcherBuilder.pattern(HttpMethod.POST, baseUrl + usersUrl)).permitAll()
-                        .requestMatchers(mvcMatcherBuilder.pattern("/index.html")).permitAll()
-                        .requestMatchers(mvcMatcherBuilder.pattern("/assets/**")).permitAll()
-                        .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
-                        //.requestMatchers(mvcMatcherBuilder.pattern("/**")).permitAll() // for H2 console
+                        .requestMatchers(WHITE_URLS).permitAll()
+                        .requestMatchers(welcomeUrl).permitAll()
+                        .requestMatchers(baseUrl + loginUrl).permitAll()
+                        .requestMatchers(baseUrl + loginUrl + "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, baseUrl + usersUrl).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer((rs) -> rs.jwt((jwt) -> jwt.decoder(jwtDecoder)))
@@ -66,7 +74,9 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class).build();
+        return httpSecurity
+                .getSharedObject(AuthenticationManagerBuilder.class)
+                .build();
     }
 
     @Bean
