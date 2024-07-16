@@ -6,6 +6,7 @@ import hexlet.code.app.dto.user.UserUpdateDTO;
 import hexlet.code.app.model.User;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -24,17 +25,28 @@ public abstract class UserMapper {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @BeforeMapping
+    public void encryptPassword(UserCreateDTO dto) {
+        var password = dto.getPassword();
+        dto.setPassword(passwordEncoder.encode(password));
+
+    }
+
+    @BeforeMapping
+    public void encryptPasswordUpdate(UserUpdateDTO userUpdateDTO, @MappingTarget User user) {
+        var password = userUpdateDTO.getPassword();
+        if (password != null && password.isPresent()) {
+            user.setPasswordDigest(passwordEncoder.encode(password.get()));
+        }
+
+    }
+
+    @Mapping(source = "password", target = "passwordDigest")
     public abstract User map(UserCreateDTO dto);
 
     public abstract UserDTO map(User user);
 
+    @Mapping(source = "password", target = "passwordDigest")
     public abstract void update(UserUpdateDTO dto, @MappingTarget User user);
-
-    @BeforeMapping
-    public void encryptPassword(UserCreateDTO dto) {
-        var password = dto.getPasswordDigest();
-        dto.setPasswordDigest(passwordEncoder.encode(password));
-
-    }
 
 }
