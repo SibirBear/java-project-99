@@ -59,6 +59,8 @@ dependencies {
 	testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+//	rest assured for Spring
+	testImplementation("io.rest-assured:spring-mock-mvc:5.5.0")
 }
 
 tasks.jacocoTestReport {

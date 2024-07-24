@@ -134,83 +134,66 @@ class UsersControllerTest {
 
     @Test
     public void testCreateUserWithoutOptionalParams() throws Exception {
-        var newUser = Instancio.of(modelGenerator.getUserModel())
-                                .ignore(Select.field(User::getFirstName))
-                                .ignore(Select.field(User::getLastName))
-                                .lenient()
-                                .create();
+        newUser1.setFirstName(null);
+        newUser1.setLastName(null);
 
         var request = MockMvcRequestBuilders.post(baseUrl).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
-                              .content(om.writeValueAsString(newUser));
+                              .content(om.writeValueAsString(newUser1));
         mockMvc.perform(request).andExpect(status().isCreated());
 
-        var user = userRepository.findByEmail(newUser.getEmail()).orElse(null);
+        var user = userRepository.findByEmail(newUser1.getEmail()).orElse(null);
 
         assertNotNull(user);
         assertNull(user.getFirstName());
         assertNull(user.getLastName());
-        assertThat(user.getPasswordDigest()).isNotEqualTo(newUser.getPasswordDigest());
+        assertThat(user.getPasswordDigest()).isNotEqualTo(newUser1.getPasswordDigest());
 
     }
 
     @Test
     public void testCreateUserWithInvalidPassword() throws Exception {
-        var newUser = Instancio.of(modelGenerator.getUserModel())
-                              .supply(Select.field(User::getPasswordDigest), () -> faker.internet().password(1, 2))
-                              .create();
+        newUser1.setPasswordDigest("11");
 
         var request = MockMvcRequestBuilders.post(baseUrl).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
-                              .content(om.writeValueAsString(newUser));
+                              .content(om.writeValueAsString(newUser1));
         mockMvc.perform(request).andExpect(status().isBadRequest());
 
     }
 
     @Test
     public void testCreateUserWithInvalidEmail() throws Exception {
-        var newUser = Instancio.of(modelGenerator.getUserModel())
-                              .supply(Select.field(User::getEmail), () -> faker.name().fullName())
-                              .create();
+        newUser1.setEmail("test-email");
 
         var request = MockMvcRequestBuilders.post(baseUrl).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
-                              .content(om.writeValueAsString(newUser));
+                              .content(om.writeValueAsString(newUser1));
         mockMvc.perform(request).andExpect(status().isBadRequest());
 
     }
 
     @Test
     public void testUpdateUser() throws Exception {
-        var newUser = Instancio.of(modelGenerator.getUserModel()).create();
-        userRepository.save(newUser);
-
-        var newUserUpdate = Instancio.of(modelGenerator.getUserModel()).create();
-
-        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId()).with(token)
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser2.getId()).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
-                              .content(om.writeValueAsString(newUserUpdate));
+                              .content(om.writeValueAsString(newUser1));
         mockMvc.perform(request).andExpect(status().isOk());
 
-        var user = userRepository.findById(newUser.getId()).orElse(null);
+        var user = userRepository.findById(newUser2.getId()).orElse(null);
 
         assertNotNull(user);
-        assertThat(user.getFirstName()).isEqualTo(newUserUpdate.getFirstName());
-        assertThat(user.getLastName()).isEqualTo(newUserUpdate.getLastName());
-        assertThat(user.getEmail()).isEqualTo(newUserUpdate.getEmail());
-        assertThat(user.getPasswordDigest()).isEqualTo(newUserUpdate.getPasswordDigest());
+        assertThat(user.getFirstName()).isEqualTo(newUser1.getFirstName());
+        assertThat(user.getLastName()).isEqualTo(newUser1.getLastName());
+        assertThat(user.getEmail()).isEqualTo(newUser1.getEmail());
+        assertThat(user.getPasswordDigest()).isEqualTo(newUser1.getPasswordDigest());
     }
 
     @Test
     public void testUpdateUserWithoutAuth() throws Exception {
-        var newUser = Instancio.of(modelGenerator.getUserModel()).create();
-        userRepository.save(newUser);
-
-        var newUserUpdate = Instancio.of(modelGenerator.getUserModel()).create();
-
-        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId())
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser2.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(newUserUpdate));
+                .content(om.writeValueAsString(newUser1));
         mockMvc.perform(request).andExpect(status().isUnauthorized());
 
     }
@@ -220,26 +203,23 @@ class UsersControllerTest {
         var fnParams = "firstName";
         var lnParams = "lastName";
 
-        var newUser = Instancio.of(modelGenerator.getUserModel()).create();
-        userRepository.save(newUser);
-
         var newUserUpdate = Map.of(
                 fnParams, faker.name().firstName(),
                 lnParams, faker.name().lastName()
         );
 
-        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser.getId()).with(token)
+        var request = MockMvcRequestBuilders.put(baseUrl + "/" + newUser2.getId()).with(token)
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(om.writeValueAsString(newUserUpdate));
         mockMvc.perform(request).andExpect(status().isOk());
 
-        var user = userRepository.findById(newUser.getId()).orElse(null);
+        var user = userRepository.findById(newUser2.getId()).orElse(null);
 
         assertNotNull(user);
         assertThat(user.getFirstName()).isEqualTo(newUserUpdate.get(fnParams));
         assertThat(user.getLastName()).isEqualTo(newUserUpdate.get(lnParams));
-        assertThat(user.getEmail()).isEqualTo(newUser.getEmail());
-        assertThat(user.getPasswordDigest()).isEqualTo(newUser.getPasswordDigest());
+        assertThat(user.getEmail()).isEqualTo(newUser2.getEmail());
+        assertThat(user.getPasswordDigest()).isEqualTo(newUser2.getPasswordDigest());
     }
 
     @Test
@@ -261,11 +241,8 @@ class UsersControllerTest {
 
     @Test
     public void testDeleteUserWithoutAuth() throws Exception {
-        var newUser = Instancio.of(modelGenerator.getUserModel()).create();
-        userRepository.save(newUser);
-
         var request = MockMvcRequestBuilders
-                .delete(baseUrl + "/" + newUser.getId());
+                .delete(baseUrl + "/" + newUser2.getId());
 
         mockMvc.perform(request).andExpect(status().isUnauthorized());
 
