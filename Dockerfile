@@ -1,13 +1,11 @@
-FROM eclipse-temurin:20-jdk
+FROM gradle:8.3.0-jdk20
 
-WORKDIR /app
+WORKDIR /
 
-COPY /. .
+COPY / .
 
-RUN ./gradlew --no-daemon build
+RUN ./gradlew installDist
 
-ENV JAVA_OPTS "-Xmx512M -Xms512M"
-
-CMD java -jar build/libs/app-0.0.1-SNAPSHOT.jar
+CMD ./build/install/app/bin/app
 
 EXPOSE 8090
