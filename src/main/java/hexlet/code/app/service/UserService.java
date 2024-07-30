@@ -5,6 +5,7 @@ import hexlet.code.app.dto.user.UserDTO;
 import hexlet.code.app.dto.user.UserUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.UserMapper;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class UserService {
     private final UserRepository userRepository;
     @Autowired
     private final UserMapper userMapper;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     public List<UserDTO> getAllUsers() {
         var users = userRepository.findAll();
@@ -55,7 +59,14 @@ public class UserService {
     }
 
     public void deleteUser(final long id) {
+        var tasks = taskRepository.findByAssigneeId(id);
+        if (!tasks.isEmpty()) {
+            throw new RuntimeException(
+                    String.format("User with id %s can`t be deleted, it has tasks", id));
+        }
+
         userRepository.deleteById(id);
+
     }
 
 }

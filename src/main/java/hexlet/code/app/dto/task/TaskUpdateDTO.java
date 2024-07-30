@@ -1,5 +1,6 @@
 package hexlet.code.app.dto.task;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -13,12 +14,13 @@ import java.util.Set;
 public class TaskUpdateDTO {
 
     @NotBlank
-    private JsonNullable<String> name;
+    private JsonNullable<String> title;
     private JsonNullable<Integer> index;
-    private JsonNullable<String> description;
+    private JsonNullable<String> content;
     @NotNull
-    private JsonNullable<String> taskStatus;
+    private JsonNullable<String> status;
+    @JsonProperty("assignee_id")
     private JsonNullable<Long> assigneeId;
-    private JsonNullable<Set<Long>> labelsIds;
+    private JsonNullable<Set<Long>> taskLabelIds;
 
 }

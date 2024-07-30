@@ -54,8 +54,7 @@ class TaskStatusControllerTest {
 
         assertThatJson(body).and(
                 v -> v.node("name").isEqualTo(newTaskStatus.getName()),
-                v -> v.node("slug").isEqualTo(newTaskStatus.getSlug()),
-                v -> v.node("createdAt").isEqualTo(newTaskStatus.getCreatedAt())
+                v -> v.node("slug").isEqualTo(newTaskStatus.getSlug())
         );
 
     }

@@ -6,7 +6,6 @@ import hexlet.code.app.repository.UserRepository;
 import hexlet.code.app.util.ModelGenerator;
 import net.datafaker.Faker;
 import org.instancio.Instancio;
-import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

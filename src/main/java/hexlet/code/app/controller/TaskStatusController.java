@@ -3,13 +3,12 @@ package hexlet.code.app.controller;
 import hexlet.code.app.dto.taskStatus.TaskStatusCreateDTO;
 import hexlet.code.app.dto.taskStatus.TaskStatusDTO;
 import hexlet.code.app.dto.taskStatus.TaskStatusUpdateDTO;
-import hexlet.code.app.exception.ResourceNotFoundException;
-import hexlet.code.app.mapper.TaskStatusMapper;
-import hexlet.code.app.repository.TaskStatusRepository;
+import hexlet.code.app.service.TaskStatusService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,37 +27,31 @@ import java.util.List;
 public class TaskStatusController {
 
     @Autowired
-    private final TaskStatusRepository taskStatusRepository;
-
-    @Autowired
-    private final TaskStatusMapper taskStatusMapper;
+    private final TaskStatusService taskStatusService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<TaskStatusDTO> list() {
-        var taskStatuses = taskStatusRepository.findAll();
+    public ResponseEntity<List<TaskStatusDTO>> getAll() {
+        List<TaskStatusDTO> taskStatuses = taskStatusService.getAllTaskStatuses();
 
-        return taskStatuses.stream().map(taskStatusMapper::map).toList();
+        return ResponseEntity
+                .ok()
+                .header("X-Total-Count", String.valueOf(taskStatuses.size()))
+                .body(taskStatuses);
 
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TaskStatusDTO getTaskStatus(@PathVariable final long id) {
-        var taskStatus = taskStatusRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("TaskStatus with id %s not found", id)));
-
-        return taskStatusMapper.map(taskStatus);
+    public TaskStatusDTO get(@PathVariable final long id) {
+        return taskStatusService.getTaskStatus(id);
 
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TaskStatusDTO createTaskStatus(@Valid @RequestBody final TaskStatusCreateDTO taskStatusBody) {
-        var taskStatus = taskStatusMapper.map(taskStatusBody);
-        taskStatusRepository.save(taskStatus);
-
-        return taskStatusMapper.map(taskStatus);
+        return taskStatusService.createTaskStatus(taskStatusBody);
 
     }
 
@@ -66,19 +59,14 @@ public class TaskStatusController {
     @ResponseStatus(HttpStatus.OK)
     public TaskStatusDTO updateTaskStatus(@Valid @RequestBody final TaskStatusUpdateDTO taskStatusBody,
                                           @PathVariable final long id) {
-        var taskStatus = taskStatusRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("TaskStatus with id %s not found", id)));
-        taskStatusMapper.update(taskStatusBody, taskStatus);
-        taskStatusRepository.save(taskStatus);
-
-        return taskStatusMapper.map(taskStatus);
+        return taskStatusService.updateTaskStatus(taskStatusBody, id);
 
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void deleteTaskStatus(@PathVariable final long id) {
-        taskStatusRepository.deleteById(id);
+        taskStatusService.deleteTaskStatus(id);
     }
 
 

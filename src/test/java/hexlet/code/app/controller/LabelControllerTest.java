@@ -85,6 +85,7 @@ class LabelControllerTest {
     void tearDown() {
         userRepository.delete(testUser);
         labelRepository.delete(testLabel);
+        labelRepository.delete(newLabel);
 
     }
 
