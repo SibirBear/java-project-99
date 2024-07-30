@@ -18,6 +18,16 @@ rsa:
   private-key: classpath:certs/private99.pem
   public-key: classpath:certs/public.pem
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
+sentry:
+  dsn: https://ffb0a3daed8a800961ee3495a9788d38@o4507691214962688.ingest.de.sentry.io/4507691334107216
+  traces-sample-rate: 1.0
+
 # основные маршруты
 base-url: /api
 welcome-url: /welcome
