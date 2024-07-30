@@ -3,12 +3,14 @@ package hexlet.code.app.service;
 import hexlet.code.app.dto.user.UserCreateDTO;
 import hexlet.code.app.dto.user.UserDTO;
 import hexlet.code.app.dto.user.UserUpdateDTO;
+import hexlet.code.app.exception.ResourceHasRelatedEntitiesException;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,13 +61,12 @@ public class UserService {
     }
 
     public void deleteUser(final long id) {
-        var tasks = taskRepository.findByAssigneeId(id);
-        if (!tasks.isEmpty()) {
-            throw new RuntimeException(
-                    String.format("User with id %s can`t be deleted, it has tasks", id));
+        try {
+            userRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceHasRelatedEntitiesException(
+                    "{\"error\":\"User with id: " + id + " can`t be deleted, it has tasks\"}");
         }
-
-        userRepository.deleteById(id);
 
     }
 

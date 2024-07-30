@@ -3,12 +3,14 @@ package hexlet.code.app.service;
 import hexlet.code.app.dto.taskStatus.TaskStatusCreateDTO;
 import hexlet.code.app.dto.taskStatus.TaskStatusDTO;
 import hexlet.code.app.dto.taskStatus.TaskStatusUpdateDTO;
+import hexlet.code.app.exception.ResourceHasRelatedEntitiesException;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,13 +64,12 @@ public class TaskStatusService {
     }
 
     public void deleteTaskStatus(final long id) {
-        var tasks = taskRepository.findByTaskStatusId(id);
-        if (!tasks.isEmpty()) {
-            throw new RuntimeException(
-                    String.format("TaskStatus with id %s can`t be deleted, it has tasks", id));
+        try {
+            taskStatusRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceHasRelatedEntitiesException(
+                    "{\"error\":\"Task status with id: " + id + " can`t be deleted, it has tasks\"}");
         }
-
-        taskStatusRepository.deleteById(id);
     }
 
 }

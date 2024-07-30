@@ -3,12 +3,14 @@ package hexlet.code.app.service;
 import hexlet.code.app.dto.label.LabelCreateDTO;
 import hexlet.code.app.dto.label.LabelDTO;
 import hexlet.code.app.dto.label.LabelUpdateDTO;
+import hexlet.code.app.exception.ResourceHasRelatedEntitiesException;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.LabelMapper;
 import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,13 +64,13 @@ public class LabelService {
     }
 
     public void deleteLabel(final long id) {
-        //var tasks = taskRepository.findByLabelsId(id);
-        /*if (!tasks.isEmpty()) {
-            throw new RuntimeException(
-                    String.format("Label with id %s can`t be deleted, it has tasks", id));
-        }*/
+        try {
+            labelRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceHasRelatedEntitiesException(
+                    "{\"error\":\"Label with id: " + id + " can`t be deleted, it has tasks\"}");
+        }
 
-        labelRepository.deleteById(id);
     }
 
 }

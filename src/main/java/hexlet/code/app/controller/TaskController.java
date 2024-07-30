@@ -2,6 +2,7 @@ package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.task.TaskCreateDTO;
 import hexlet.code.app.dto.task.TaskDTO;
+import hexlet.code.app.dto.task.TaskFilterDTO;
 import hexlet.code.app.dto.task.TaskUpdateDTO;
 import hexlet.code.app.service.TaskService;
 import jakarta.validation.Valid;
@@ -31,8 +32,8 @@ public class TaskController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<TaskDTO>> getAll() {
-        var tasks = taskService.getAllTasks();
+    public ResponseEntity<List<TaskDTO>> getAll(final TaskFilterDTO filterDTO) {
+        var tasks = taskService.getAllTasks(filterDTO);
 
         return ResponseEntity
                 .ok()

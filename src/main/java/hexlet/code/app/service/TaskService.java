@@ -2,6 +2,7 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.task.TaskCreateDTO;
 import hexlet.code.app.dto.task.TaskDTO;
+import hexlet.code.app.dto.task.TaskFilterDTO;
 import hexlet.code.app.dto.task.TaskUpdateDTO;
 import hexlet.code.app.exception.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskMapper;
@@ -10,6 +11,7 @@ import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
+import hexlet.code.app.specification.TaskSpecification;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,9 +40,13 @@ public class TaskService {
     @Autowired
     private final LabelRepository labelRepository;
 
+    @Autowired
+    private TaskSpecification taskSpecification;
+
     @Transactional
-    public List<TaskDTO> getAllTasks() {
-        var tasks = taskRepository.findAll();
+    public List<TaskDTO> getAllTasks(final TaskFilterDTO filterDTO) {
+        var filter = taskSpecification.build(filterDTO);
+        var tasks = taskRepository.findAll(filter);
 
         return tasks.stream().map(taskMapper::map).toList();
 
@@ -110,9 +116,6 @@ public class TaskService {
     }
 
     public void deleteTask(final long id) {
-        /*var task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Task with id %s not found", id)));*/
-
         taskRepository.deleteById(id);
 
     }
