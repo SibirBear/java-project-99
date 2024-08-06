@@ -12,7 +12,10 @@ import hexlet.code.util.ModelGenerator;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,6 +34,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class LabelControllerTest {
 
     @Autowired
@@ -90,6 +94,7 @@ class LabelControllerTest {
     }
 
     @Test
+    @Order(1)
     public void testGetLabel() throws Exception {
         var request = MockMvcRequestBuilders.get(baseUrl + "/{id}", testLabel.getId())
                 .with(token);
@@ -106,6 +111,7 @@ class LabelControllerTest {
     }
 
     @Test
+    @Order(2)
     public void testGetAllLabels() throws Exception {
         var request = MockMvcRequestBuilders.get(baseUrl)
                 .with(token);
@@ -120,6 +126,7 @@ class LabelControllerTest {
     }
 
     @Test
+    @Order(3)
     public void testCreateLabelPositive() throws Exception {
         var request = MockMvcRequestBuilders.post(baseUrl)
                 .with(token)
@@ -137,6 +144,7 @@ class LabelControllerTest {
     }
 
     @Test
+    @Order(4)
     public void testCreateLabelNegativeNotValidName() throws Exception {
         newLabel.setName("");
 
@@ -150,6 +158,7 @@ class LabelControllerTest {
     }
 
     @Test
+    @Order(5)
     public void testUpdateLabelPositive() throws Exception {
         var request = MockMvcRequestBuilders.put(baseUrl + "/{id}", testLabel.getId())
                 .with(token)
@@ -167,6 +176,7 @@ class LabelControllerTest {
     }
 
     @Test
+    @Order(6)
     public void testUpdateLabelNegativeWithoutAuth() throws Exception {
         var request = MockMvcRequestBuilders.put(baseUrl + "/{id}", testLabel.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -177,6 +187,7 @@ class LabelControllerTest {
     }
 
     @Test
+    @Order(7)
     public void testDeleteLabelPositive() throws Exception {
         var request = MockMvcRequestBuilders.delete(baseUrl + "/{id}", testLabel.getId())
                 .with(token);
@@ -190,6 +201,7 @@ class LabelControllerTest {
     }
 
     @Test
+    @Order(8)
     public void testDeleteLabelNegativeWrongId() throws Exception {
         var request = MockMvcRequestBuilders.delete(baseUrl + "/{id}", Long.MAX_VALUE)
                 .with(token);

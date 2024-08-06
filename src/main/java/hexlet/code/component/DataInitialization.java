@@ -7,6 +7,7 @@ import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +20,8 @@ import java.util.List;
 
 @Component
 @NoArgsConstructor(force = true)
-public class InitialDataInitialization implements ApplicationRunner {
+@AllArgsConstructor
+public class DataInitialization implements ApplicationRunner {
 
     @Autowired
     private final UserRepository userRepository;
@@ -47,7 +49,7 @@ public class InitialDataInitialization implements ApplicationRunner {
     private final List<String> defaultLabels;
 
     @Override
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args) throws Exception {
         userRepository.findByEmail(defaultEmail).orElseGet(() -> {
             var user = new User()
                     .setEmail(defaultEmail)
