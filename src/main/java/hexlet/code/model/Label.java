@@ -42,7 +42,7 @@ public class Label implements BaseEntity {
     private String name;
 
     @CreatedDate
-    private LocalDate createAt;
+    private LocalDate createdAt;
 
     @ManyToMany(mappedBy = "labels", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private Set<Task> tasks = new HashSet<>();

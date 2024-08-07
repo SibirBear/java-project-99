@@ -38,7 +38,7 @@ class TaskStatusControllerTest {
     @Autowired
     private ObjectMapper om;
 
-    @Value("${base-url}${task-statuses-url}")
+    @Value("/api/task_statuses")
     private String baseUrl;
 
     @Test
@@ -206,11 +206,12 @@ class TaskStatusControllerTest {
         var request = MockMvcRequestBuilders
                 .delete(baseUrl + "/" + newTaskStatus.getId()).with(jwt());
 
-        mockMvc.perform(request).andExpect(status().isNotFound());
+        mockMvc.perform(request).andExpect(status().isNoContent());
 
         var taskStatus = taskStatusRepository.findById(newTaskStatus.getId()).orElse(null);
 
         assertNull(taskStatus);
+        assertThat(taskStatusRepository.existsById(newTaskStatus.getId())).isEqualTo(false);
 
     }
 

@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
 	base
 	application
@@ -83,10 +86,12 @@ tasks.jacocoTestReport {
 	}
 }
 
-tasks.test {
-	finalizedBy(tasks.jacocoTestReport)
-}
-
 tasks.withType<Test> {
+	finalizedBy(tasks.jacocoTestReport)
 	useJUnitPlatform()
+	testLogging {
+		exceptionFormat = TestExceptionFormat.FULL
+		events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
+		showStandardStreams = true
+	}
 }

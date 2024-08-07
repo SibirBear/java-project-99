@@ -68,7 +68,7 @@ class LabelControllerTest {
     private Label testLabel;
     private Label newLabel;
 
-    @Value("${base-url}${label-url}")
+    @Value("/api/labels")
     private String baseUrl;
 
     @BeforeEach
@@ -192,11 +192,12 @@ class LabelControllerTest {
         var request = MockMvcRequestBuilders.delete(baseUrl + "/{id}", testLabel.getId())
                 .with(token);
         mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
 
         var label = labelRepository.findById(testLabel.getId()).orElse(null);
 
         assertNull(label);
+        assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(false);
 
     }
 
@@ -206,7 +207,7 @@ class LabelControllerTest {
         var request = MockMvcRequestBuilders.delete(baseUrl + "/{id}", Long.MAX_VALUE)
                 .with(token);
         mockMvc.perform(request)
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
 
     }
 

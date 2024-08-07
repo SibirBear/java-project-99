@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("${base-url}${label-url}")
+@RequestMapping("/api/labels")
 @AllArgsConstructor
 public class LabelController {
 
@@ -63,7 +63,7 @@ public class LabelController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLabel(@PathVariable final long id) {
         labelService.deleteLabel(id);
     }

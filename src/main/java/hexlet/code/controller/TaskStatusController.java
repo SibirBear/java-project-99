@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("${base-url}${task-statuses-url}")
+@RequestMapping("/api/task_statuses")
 @AllArgsConstructor
 public class TaskStatusController {
 
@@ -64,7 +64,7 @@ public class TaskStatusController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTaskStatus(@PathVariable final long id) {
         taskStatusService.deleteTaskStatus(id);
     }

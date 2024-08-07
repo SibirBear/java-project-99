@@ -2,7 +2,6 @@ package hexlet.code.config;
 
 import hexlet.code.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,14 +34,10 @@ public class SecurityConfig {
     @Autowired
     private JwtDecoder jwtDecoder;
 
-    @Value("${base-url}")
-    private String baseUrl;
-    @Value("${welcome-url}")
-    private String welcomeUrl;
-    @Value("${users-url}")
-    private String usersUrl;
-    @Value("${login-url}")
-    private String loginUrl;
+    private String baseUrl = "/api";
+    private String welcomeUrl = "/welcome";
+    private String usersUrl = "/users";
+    private String loginUrl = "/login";
 
     public static final RequestMatcher WHITE_URLS = new OrRequestMatcher(
             new AntPathRequestMatcher("/"),

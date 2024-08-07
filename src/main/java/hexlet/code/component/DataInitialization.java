@@ -6,11 +6,9 @@ import hexlet.code.model.User;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,18 +33,14 @@ public class DataInitialization implements ApplicationRunner {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${const-user-email}")
-    private final String defaultEmail;
+    private final String defaultEmail = "hexlet@example.com";
 
-    @Value("${const-user-pass}")
-    private final String defaultPass;
+    private final String defaultPass = "qwerty";
 
-    @Value("#{'${const-task-status-slugs}'.split(',')}")
-    private final List<String> defaultTaskStatuses;
+    private final List<String> defaultTaskStatuses = List.of(
+            "draft", "to_review", "to_be_fixed", "to_publish", "published");
 
-    @Value("#{'${const-labels}'.split(',')}")
-    @NotNull
-    private final List<String> defaultLabels;
+    private final List<String> defaultLabels = List.of("bug", "feature");
 
     @Override
     public void run(ApplicationArguments args) throws Exception {

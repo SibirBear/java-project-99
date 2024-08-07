@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -62,17 +61,14 @@ class TaskControllerTest {
     @Autowired
     private TaskMapper taskMapper;
 
-    @Value("${base-url}${task-url}")
-    private String baseUrl;
+    private String baseUrl = "/api/tasks";
 
-    @Value("${const-user-email}")
-    private String userEmail;
+    private String userEmail = "hexlet@example.com";
 
-    @Value("#{'${const-task-status-slugs}'.split(',')}")
-    private List<String> taskStatuses;
+    private List<String> taskStatuses = List.of(
+            "draft", "to_review", "to_be_fixed", "to_publish", "published");;
 
-    @Value("#{'${const-labels}'.split(',')}")
-    private List<String> defaultLabels;
+    private List<String> defaultLabels = List.of("bug", "feature");;
 
     private Task testTask;
 
@@ -323,7 +319,7 @@ class TaskControllerTest {
         var request = MockMvcRequestBuilders
                 .delete(baseUrl + "/" + testTask.getId()).with(jwt());
 
-        mockMvc.perform(request).andExpect(status().isNotFound());
+        mockMvc.perform(request).andExpect(status().isNoContent());
 
         var task = taskStatusRepository.findById(testTask.getId()).orElse(null);
 
